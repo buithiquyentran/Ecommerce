@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
-const connectString = "mongodb://localhost:27017/Ecommerce/Ecommerce";
 import countConnect from "../helpers/check.connect.js";
+import config from "../configs/config.mongodb.js";
+const { host, port, name } = config.db;
+const connectString = `mongodb://${host}:${port}/${name}`;
 
 class Database {
   constructor() {
@@ -14,7 +16,7 @@ class Database {
     mongoose
       .connect(connectString, { maxPoolSize: 50 })
       .then((_) => {
-        console.log("Connected to MongoDB Pro");
+        console.log(`Connected to MongoDB ${name}`);
         countConnect();
       })
       .catch((err) => {
