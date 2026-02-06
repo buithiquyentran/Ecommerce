@@ -8,10 +8,14 @@ var keyTokenSchema = new Schema(
       required: true,
       ref: "Shop",
     },
-    publicKey: {
+    keyAccess: {
       type: String,
       required: true,
     },
+    keyRefresh: {
+      type: String,
+      required: true,
+    },  
     refreshToken: {
       type: Array,
       default: [],

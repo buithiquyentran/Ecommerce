@@ -1,5 +1,5 @@
 import ShopModel from "../models/shop.model.js";
-import * as crypto from "crypto";
+import * as crypto from "node:crypto"
 import bcypt from "bcrypt";
 import { createTokenPair } from "../auth/authUtils.js";
 import keyTokenService from "./keyToken.service.js";
@@ -31,24 +31,15 @@ class AccessService {
       });
       // create public and private key pair
       if (newShop) {
-        const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
-          modulusLength: 4096,
-          publicKeyEncoding: {
-            type: "spki",
-            format: "pem",
-          },
-          privateKeyEncoding: {
-            type: "pkcs8",
-            format: "pem",
-          },
-        });
-        console.log({ privateKey, publicKey });
+        const keyAccess = crypto.randomBytes(64).toString("hex");
+        const keyRefresh = crypto.randomBytes(64).toString("hex");
         // save public key to db
-        const publicKeyString = await keyTokenService.createKeyToken({
+        const keyStore = await keyTokenService.createKeyToken({
           user: newShop._id,
-          publicKey,
+          keyAccess,
+          keyRefresh
         });
-        if (!publicKeyString) {
+        if (!keyStore) {
           return {
             code: "xxx",
             message: "Error creating key token",
@@ -61,8 +52,8 @@ class AccessService {
             email,
             roles: newShop.role,
           },
-          publicKeyString,
-          privateKey,
+          keyStore.keyAccess,
+          keyStore.keyRefresh,
         );
         console.log("Created Tokens: ", tokens);
         return {
@@ -84,7 +75,7 @@ class AccessService {
     } catch (error) {
       return {
         code: "xxx",
-        message: error.message,
+        message: error,
       };
     }
   };

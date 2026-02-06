@@ -1,13 +1,13 @@
 import keyTokenModel from "../models/keytoken.model.js";
 class keyTokenService {
-  static createKeyToken = async ({ user, publicKey }) => {
+  static createKeyToken = async ({ user, keyAccess, keyRefresh }) => {
     try {
-      const publicKeyString = publicKey.toString();
       const keyToken = await keyTokenModel.create({
         user,
-        publicKey: publicKeyString,
+        keyAccess,
+        keyRefresh,
       });
-      return keyToken ? keyToken.publicKey : null;
+      return keyToken;
     } catch (error) {
       return error;
     }
