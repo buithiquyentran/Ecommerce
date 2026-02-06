@@ -3,6 +3,7 @@ import * as crypto from "crypto";
 import bcypt from "bcrypt";
 import { createTokenPair } from "../auth/authUtils.js";
 import keyTokenService from "./keyToken.service.js";
+import { getInforData } from "../utils/index.js";
 const roleShop = {
   SHOP: "SHOP",
   WRITER: "WRITER",
@@ -28,8 +29,8 @@ class AccessService {
         password: passwordHash,
         role: [roleShop.SHOP],
       });
+      // create public and private key pair
       if (newShop) {
-        // create public and private key pair
         const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
           modulusLength: 4096,
           publicKeyEncoding: {
@@ -42,6 +43,7 @@ class AccessService {
           },
         });
         console.log({ privateKey, publicKey });
+        // save public key to db
         const publicKeyString = await keyTokenService.createKeyToken({
           user: newShop._id,
           publicKey,
@@ -66,10 +68,12 @@ class AccessService {
         return {
           code: "201",
           metadata: {
-            _id: newShop._id,
-            name: newShop.name,
+            shop: getInforData({
+              fields: ["_id", "name", "email", "role"],
+              object: newShop,
+            }),
+            tokens,
           },
-          tokens,
         };
       } else {
         return {
