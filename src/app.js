@@ -1,4 +1,3 @@
-
 import express from "express";
 import morgan from "morgan";
 import helmet from "helmet";
@@ -14,17 +13,14 @@ app.use(morgan("dev"));
 
 app.use(helmet());
 // app.use(compression());
-
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 //init db
 import mongoose from "./dbs/init.mongodb.js";
 
 // init routes
-app.get("/", (req, res, next) => {
-  const strCompress = "tran";
-  return res
-    .status(200)
-    .json({ message: "API is working!", metadata: strCompress.repeat(1000) });
-});
+import { router } from "./routes/index.js";
+app.use("/", router);
 // handle error
 
 export default app;
