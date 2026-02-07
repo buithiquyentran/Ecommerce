@@ -1,7 +1,7 @@
 ### signup
 @url_dev=http://localhost:3000/v1/api
 
-POST {{url_dev}}/signup
+POST {{url_dev}}/signupuuu
 Content-Type: application/json
 x-api-key: 8e6240e74525a904dff9e01deb1a8b58
 
