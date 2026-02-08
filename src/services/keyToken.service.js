@@ -1,13 +1,26 @@
 import keyTokenModel from "../models/keytoken.model.js";
 class keyTokenService {
-  static createKeyToken = async ({ user, keyAccess, keyRefresh }) => {
+  static createKeyToken = async ({
+    user,
+    keyAccess,
+    keyRefresh,
+    refreshToken,
+  }) => {
     try {
-      const keyToken = await keyTokenModel.create({
-        user,
+      const filter = { user: user };
+      const update = {
         keyAccess,
         keyRefresh,
-      });
-      return keyToken;
+        refreshTokensUsed: [],
+        refreshToken,
+      };
+      const options = { new: true, upsert: true };
+      const keyToken = await keyTokenModel.findOneAndUpdate(
+        filter,
+        update,
+        options,
+      );
+      return keyToken ? keyToken.keyAccess : null;
     } catch (error) {
       return error;
     }

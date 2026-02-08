@@ -15,11 +15,15 @@ var keyTokenSchema = new Schema(
     keyRefresh: {
       type: String,
       required: true,
-    },  
-    refreshToken: {
+    },
+    refreshTokensUsed: {
       type: Array,
-      default: [],
+      default: [], // luu nhung refreshToken da su dung
       required: true,
+    },
+    refreshToken: {
+      type: String,
+      default: null,
     },
   },
   { timestamps: true, collection: COLLECTION_NAME },

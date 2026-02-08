@@ -25,7 +25,7 @@ var shopSchema = new Schema(
       enum: ["active", "inactive"],
       default: "active",
     },
-    role: {
+    roles: {
       type: Array,
       default: [],
     },
