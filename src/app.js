@@ -21,6 +21,19 @@ import mongoose from "./dbs/init.mongodb.js";
 // init routes
 import { router } from "./routes/index.js";
 app.use("/", router);
-// handle error
 
+// handle error
+app.use((req, res, next) => {
+  const error = new Error("Not Found");
+  error.statusCode = 404;
+  next(error);
+});
+app.use((err, req, res, next) => {
+    const statusCode = err.statusCode || 500;
+    return res.status(statusCode).json({
+      status: "error",
+      code: statusCode,
+      message: err.message || "Internal Server Error",
+    }); 
+});
 export default app;

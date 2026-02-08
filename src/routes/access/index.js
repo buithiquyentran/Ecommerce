@@ -1,7 +1,12 @@
 import express from "express";
 const router = express.Router();
 import { accessController } from "../../controllers/access.controller.js";
-//Sign up
+import { asyncHandler } from "../../auth/checkAuth.js";
 
-router.post("/signup", accessController.signUp);
+//Sign up
+// router.post("/signup", asyncHandler(accessController.signUp));
+router.post("/signup", (req, res, next) => {
+  accessController.signUp(req, res, next).catch(next);
+});
+
 export { router };
