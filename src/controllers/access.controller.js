@@ -1,4 +1,4 @@
-import { AccessService } from "../services/access.service.js";
+import  AccessService from "../services/access.service.js";
 import { OK, Created } from "../core/success.response.js";
 class AccessController {
   async login(req, res, next) {
@@ -7,7 +7,14 @@ class AccessController {
       metadata: await AccessService.login(req.body),
     }).send(res);
   }
-  
+  async logout(req, res, next) {
+    new OK({
+      message: "Logout successfully",
+      metadata: await AccessService.logout(
+       req.keyStore,
+      ),
+    }).send (res);
+  }
   // Add methods for access control here
   async signUp(req, res, next) {
     new Created({

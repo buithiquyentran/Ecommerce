@@ -2,7 +2,6 @@ import express from "express";
 import { router as accessRouter } from "./access/index.js";
 const router = express.Router();
 import {apiKey, permission} from "../auth/checkAuth.js";
-
 // check api v1
 router.use(apiKey)
 // check permission

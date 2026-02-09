@@ -13,6 +13,11 @@ const roleShop = {
   ADMIN: "ADMIN",
 };
 class AccessService {
+
+  static logout = async (keyStore) => {
+    const keyDel =  await keyTokenService.removeKeyById(keyStore._id);
+    return keyDel;
+  };
   /*
   1. check email exists
   2. hash password
@@ -119,4 +124,4 @@ class AccessService {
     }
   };
 }
-export { AccessService };
+export default AccessService ;
