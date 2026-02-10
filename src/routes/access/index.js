@@ -1,21 +1,21 @@
 import express from "express";
-const router = express.Router();
+const accessRouter = express.Router();
 import { accessController } from "../../controllers/access.controller.js";
 import { asyncHandler } from "../../helpers/asynHandler.js";
-import { authenticate } from "../../auth/checkAuth.js";
+import { authenticate, authenRefreshToken } from "../../auth/checkAuth.js";
 
 //Sign up
-router.post("/signup", asyncHandler(accessController.signUp));
-router.post("/login", asyncHandler(accessController.login));
-// router.post("/signup", (req, res, next) => {
-//   accessController.signUp(req, res, next).catch(next);
-// });
-
+accessRouter.post("/signup", asyncHandler(accessController.signUp));
+accessRouter.post("/login", asyncHandler(accessController.login));
+accessRouter.post(
+  "/refresh-token",
+  authenRefreshToken,
+  asyncHandler(accessController.handleRefreshToken),
+);
 
 // authenticate
-router.use(authenticate);
+accessRouter.use(authenticate);
 // logout
-router.post("/logout", asyncHandler(accessController.logout));
-router.post("/refresh-token", asyncHandler(accessController.handleRefreshToken));
+accessRouter.post("/logout", asyncHandler(accessController.logout));
 
-export { router };
+export default accessRouter;

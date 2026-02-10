@@ -9,6 +9,7 @@ const HEADER = {
   API_KEY: "x-api-key",
   CLIENT_ID: "x-client-id",
   AUTHORIZATION: "authorization",
+  REFRESH_TOKEN: "x-refresh-token",
 };
 const apiKey = async (req, res, next) => {
   try {
@@ -65,7 +66,7 @@ const authenticate = asyncHandler(async (req, res, next) => {
   // 2.
   const keyStore = await keyTokenService.findByUserId(userId);
   if (!keyStore) {
-    throw new notFoundError("Not found keyStore");
+    throw new authFailureError("Invalid request");
   }
   //3.
   const accessToken = req.headers[HEADER.AUTHORIZATION]?.toString();
@@ -85,5 +86,46 @@ const authenticate = asyncHandler(async (req, res, next) => {
     throw new authFailureError("Invalid request");
   }
 });
+const authenRefreshToken = asyncHandler(async (req, res, next) => {
+  // logic authenticate
+  /*
+  1. check userId in session
+  2. get accessToken 
+  3. verify accessToken
+  4. check userId in dbs
+  5. check keyStore with userId
+  6. ok all -> next()
+   */
 
-export { apiKey, permission, authenticate };
+  // 1.
+  const userId = req.headers[HEADER.CLIENT_ID]?.toString();
+  if (!userId) {
+    throw new authFailureError("Invalid request");
+  }
+  // 2.
+  const keyStore = await keyTokenService.findByUserId(userId);
+  console.log("keyStore v2: ", keyStore, "userId: ", userId);
+  if (!keyStore) {
+    throw new notFoundError("Not found keyStore V2!!!");
+  }
+  //3.
+  const refreshToken = req.headers[HEADER.REFRESH_TOKEN]?.toString();
+  if (!refreshToken) {
+    throw new authFailureError("Invalid request");
+  }
+  console.log("keyStore: ", keyStore);
+  try {
+    const decoded = JWT.verify(refreshToken, keyStore.keyRefresh);
+    console.log("decoded: ", decoded);
+    if (userId !== decoded.user) {
+      throw new authFailureError("Invalid request");
+    }
+    req.keyStore = keyStore;
+    req.refreshToken = refreshToken;
+    req.user = decoded;
+    return next();
+  } catch (error) {
+    throw new authFailureError("Invalid request");
+  }
+});
+export { apiKey, permission, authenticate, authenRefreshToken };

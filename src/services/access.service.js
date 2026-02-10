@@ -19,40 +19,19 @@ const roleShop = {
 };
 class AccessService {
   // check token used
-  static handleRefreshToken = async (refreshToken) => {
-    // check token reuse
-    //YES
-    const foundToken =
-      await keyTokenService.findByRefreshTokenUsed(refreshToken);
-    console.log("Found Token: ", foundToken);
-    if (foundToken) {
-      // verify token
-      const { user, email } = await verifyToken(
-        refreshToken,
-        foundToken.keyRefresh,
-      );
-      console.log("User1: ", user, email);
-      // remove all key tokens for this user
-      await keyTokenService.removeKeyByUserId(user);
+  static handleRefreshToken = async ({ refreshToken, user, keyStore }) => {
+    const { userId, email } = user;
+    if (keyStore.refreshTokensUsed.includes(refreshToken)) {
+      await keyTokenService.removeKeyByUserId(userId);
       throw new forbiddenError(
         "Error: Something wrong happen ! Please re-login !!!",
       );
     }
-    //NO
-    const keyStore = await keyTokenService.findByRefreshToken(refreshToken);
-    if (!keyStore) {
+    if (keyStore.refreshToken !== refreshToken) {
       throw new authFailureError("Error: Shop not registered 1!!!");
     }
-    // verify token
-    const { user, email } = await verifyToken(
-      refreshToken,
-      keyStore.keyRefresh,
-    );
-    console.log("User", user, email);
     const foundShop = await findByEmail({ email });
-    if (!foundShop) {
-      throw new authFailureError("Error: Shop not registered 2!!!");
-    }
+
     // create new token
     const tokens = await createTokenPair(
       {
