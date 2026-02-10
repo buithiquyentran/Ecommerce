@@ -1,11 +1,16 @@
-import ShopModel from "../models/shop.model.js";
 import * as crypto from "node:crypto";
 import bcypt from "bcrypt";
-import { createTokenPair } from "../auth/authUtils.js";
+import { createTokenPair, verifyToken } from "../auth/authUtils.js";
 import keyTokenService from "./keyToken.service.js";
+import keyTokenModel from "../models/keytoken.model.js";
 import { getInforData } from "../utils/index.js";
-import { badRequestError, authFailureError } from "../core/error.response.js";
+import {
+  badRequestError,
+  authFailureError,
+  forbiddenError,
+} from "../core/error.response.js";
 import { findByEmail } from "./shop.service.js";
+import ShopModel from "../models/shop.model.js";
 const roleShop = {
   SHOP: "SHOP",
   WRITER: "WRITER",
@@ -13,9 +18,67 @@ const roleShop = {
   ADMIN: "ADMIN",
 };
 class AccessService {
-
+  // check token used
+  static handleRefreshToken = async (refreshToken) => {
+    // check token reuse
+    //YES
+    const foundToken =
+      await keyTokenService.findByRefreshTokenUsed(refreshToken);
+    console.log("Found Token: ", foundToken);
+    if (foundToken) {
+      // verify token
+      const { user, email } = await verifyToken(
+        refreshToken,
+        foundToken.keyRefresh,
+      );
+      console.log("User1: ", user, email);
+      // remove all key tokens for this user
+      await keyTokenService.removeKeyByUserId(user);
+      throw new forbiddenError(
+        "Error: Something wrong happen ! Please re-login !!!",
+      );
+    }
+    //NO
+    const keyStore = await keyTokenService.findByRefreshToken(refreshToken);
+    if (!keyStore) {
+      throw new authFailureError("Error: Shop not registered 1!!!");
+    }
+    // verify token
+    const { user, email } = await verifyToken(
+      refreshToken,
+      keyStore.keyRefresh,
+    );
+    console.log("User", user, email);
+    const foundShop = await findByEmail({ email });
+    if (!foundShop) {
+      throw new authFailureError("Error: Shop not registered 2!!!");
+    }
+    // create new token
+    const tokens = await createTokenPair(
+      {
+        user: user,
+        email: email,
+        roles: foundShop.roles,
+      },
+      keyStore.keyAccess,
+      keyStore.keyRefresh,
+    );
+    // update token store
+    await keyTokenModel.updateOne(
+      { _id: keyStore._id },
+      {
+        $set: {
+          refreshToken: tokens.refreshToken,
+        },
+        $addToSet: {
+          refreshTokensUsed: refreshToken,
+        },
+      },
+    );
+    return { user: { user, email, roles: foundShop.roles }, tokens };
+  };
   static logout = async (keyStore) => {
-    const keyDel =  await keyTokenService.removeKeyById(keyStore._id);
+    const keyDel = await keyTokenService.removeKeyById(keyStore._id);
     return keyDel;
   };
   /*
@@ -27,7 +90,7 @@ class AccessService {
   */
   static login = async ({ email, password, refreshTokensUsed = null }) => {
     // 1. check email exists
-    const holeShop = await findByEmail({email});
+    const holeShop = await findByEmail({ email });
     if (!holeShop) {
       throw new badRequestError("Error: Shop not exists !!!");
     }
@@ -85,7 +148,7 @@ class AccessService {
       const keyRefresh = crypto.randomBytes(64).toString("hex");
       // create token pair
       const tokens = await createTokenPair(
-        { 
+        {
           user: newShop._id,
           email,
           roles: newShop.roles,
@@ -124,4 +187,4 @@ class AccessService {
     }
   };
 }
-export default AccessService ;
+export default AccessService;

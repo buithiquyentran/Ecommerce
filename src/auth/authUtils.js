@@ -1,14 +1,14 @@
-import jwt from "jsonwebtoken";
+import JWT from "jsonwebtoken";
 const createTokenPair = async (payload, keyAccess, keyRefresh) => {
   try {
     // create access token
-    const accessToken = await jwt.sign(payload, keyAccess, {
+    const accessToken = await JWT.sign(payload, keyAccess, {
       expiresIn: "2 days",
     });
-    const refreshToken = await jwt.sign(payload, keyRefresh, {
+    const refreshToken = await JWT.sign(payload, keyRefresh, {
       expiresIn: "7 days",
     });
-    jwt.verify(accessToken, keyAccess, (err, decode) => {
+    JWT.verify(accessToken, keyAccess, (err, decode) => {
       if (err) {
         console.error("Error verify access token: ", err);
       } else {
@@ -20,4 +20,7 @@ const createTokenPair = async (payload, keyAccess, keyRefresh) => {
     throw new Error(error);
   }
 };
-export { createTokenPair };
+const verifyToken = async (token, keySecret) => {
+  return JWT.verify(token, keySecret);
+};
+export { createTokenPair, verifyToken };

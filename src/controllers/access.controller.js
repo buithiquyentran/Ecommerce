@@ -1,6 +1,12 @@
 import  AccessService from "../services/access.service.js";
 import { OK, Created } from "../core/success.response.js";
 class AccessController {
+  async handleRefreshToken(req, res, next) {
+    new OK({
+      message: "Get tokens successfully",
+      metadata: await AccessService.handleRefreshToken(req.body.refreshToken),
+    }).send(res);
+  }
   async login(req, res, next) {
     new OK({
       message: "Login successfully",
@@ -10,10 +16,8 @@ class AccessController {
   async logout(req, res, next) {
     new OK({
       message: "Logout successfully",
-      metadata: await AccessService.logout(
-       req.keyStore,
-      ),
-    }).send (res);
+      metadata: await AccessService.logout(req.keyStore),
+    }).send(res);
   }
   // Add methods for access control here
   async signUp(req, res, next) {
@@ -22,7 +26,6 @@ class AccessController {
       metadata: await AccessService.signUp(req.body),
       options: { limit: 10 },
     }).send(res);
-
   }
 }
 export const accessController = new AccessController();

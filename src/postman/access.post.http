@@ -1,11 +1,12 @@
 ### signup
 @url_dev=http://localhost:3000/v1/api
 
-POST {{url_dev}}/login
+POST {{url_dev}}/signup
 Content-Type: application/json
 x-api-key: 36a50da8bd24dee7853520f7c9014e47
 
 {
-    "email": "shop@example.com",
-    "password": "shop@example.com"
+    "name": "shop1",
+    "email": "shop1@example.com",
+    "password": "shop1@example.com"
 }
