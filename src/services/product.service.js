@@ -2,19 +2,21 @@ import {
   productModel,
   clothingModel,
   electronicModel,
+  furnitureModel,
 } from "../models/product.model.js";
 import { badRequestError } from "../core/error.response.js";
-
+import ProductTypes from "./product.config.js";
 class productService {
+  static productRegistry = {};
+  static registerProductType(type, classRef) {
+    this.productRegistry[type] = classRef;
+  }
   static createProduct(types, payload) {
-    switch (types) {
-      case "Electronic":
-        return new Electronic(payload).createProduct();
-      case "Clothing":
-        return new Clothing(payload).createProduct();
-      default:
-        throw new badRequestError("Error creating clothing product");
+    const classRef = this.productRegistry[types];
+    if (!classRef) {
+      throw new badRequestError(`Invalid product type: ${types}`);
     }
+    return new classRef(payload).createProduct();
   }
 }
 class Product {
@@ -80,4 +82,23 @@ class Electronic extends Product {
     return newProduct;
   }
 }
+class Furniture extends Product {
+  async createProduct() {
+    const newFurniture = await furnitureModel.create({
+      ...this.attributes,
+      shop: this.shop,
+    });
+    if (!newFurniture) {
+      throw new badRequestError("Error creating furniture product");
+    }
+    const newProduct = await super.createProduct(newFurniture._id);
+    if (!newProduct) {
+      throw new badRequestError("Invalid product type");
+    }
+    return newProduct;
+  }
+}
+productService.registerProductType(ProductTypes.CLOTHING, Clothing);
+productService.registerProductType(ProductTypes.ELECTRONICS, Electronic);
+productService.registerProductType(ProductTypes.FURNITURE, Furniture);
 export default productService;
