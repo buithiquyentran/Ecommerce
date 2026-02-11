@@ -81,6 +81,8 @@ const authenticate = asyncHandler(async (req, res, next) => {
       throw new authFailureError("Invalid request");
     }
     req.keyStore = keyStore;
+    req.user = decoded;
+
     return next();
   } catch (error) {
     throw new authFailureError("Invalid request");

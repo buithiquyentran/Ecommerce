@@ -38,18 +38,25 @@ class Product {
     this.shop = shop;
   }
   // create new product
-  async createProduct() {
-    return await productModel.create(this);
+  async createProduct(productId) {
+    return await productModel.create({ ...this, _id: productId });
   }
 }
 // define subclass for different products type Clothing
 class Clothing extends Product {
   async createProduct() {
-    const newClothing = await clothingModel.create(this.attributes);
+    const newClothing = await clothingModel.create({
+      ...this.attributes,
+      shop: this.shop,
+    });
+    console.log("newClothing", newClothing);
+
     if (!newClothing) {
       throw new badRequestError("Error creating clothing product");
     }
-    const newProduct = await super.createProduct();
+    const newProduct = await super.createProduct(newClothing._id);
+    console.log("newProduct", newProduct);
+
     if (!newProduct) {
       throw new badRequestError("Invalid product type");
     }
@@ -58,11 +65,15 @@ class Clothing extends Product {
 }
 class Electronic extends Product {
   async createProduct() {
-    const newElectronic = await electronicModel.create(this.attributes);
+    const newElectronic = await electronicModel.create({
+      ...this.attributes,
+      shop: this.shop,
+    });
+    console.log("newElectronic", newElectronic);
     if (!newElectronic) {
       throw new badRequestError(`Error creating electronic product ${type}`);
     }
-    const newProduct = await super.createProduct();
+    const newProduct = await super.createProduct(newElectronic._id);
     if (!newProduct) {
       throw new badRequestError("Error creating product");
     }
