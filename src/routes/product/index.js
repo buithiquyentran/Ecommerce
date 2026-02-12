@@ -4,19 +4,29 @@ import { productController } from "../../controllers/product.controller.js";
 import { asyncHandler } from "../../helpers/asynHandler.js";
 import { authenticate } from "../../auth/checkAuth.js";
 
-productRouter.get("/search/:keySearch", asyncHandler(productController.getListSearchProduct));
-productRouter.use(authenticate);
+productRouter.get('', asyncHandler(productController.getAllProducts));
+productRouter.get(
+  "/search/:keySearch",
+  asyncHandler(productController.getListSearchProduct),
+);
+productRouter.get("/:productId", asyncHandler(productController.getProduct));
 
+
+productRouter.use(authenticate);
 productRouter.post("/create", asyncHandler(productController.createProduct));
-productRouter.post("/publish/:id", asyncHandler(productController.publishProductByShop));
+productRouter.post(
+  "/publish/:id",
+  asyncHandler(productController.publishProductByShop),
+);
 productRouter.post(
   "/unpublish/:id",
   asyncHandler(productController.unPublishProductByShop),
 );
 
-
-
-productRouter.get("/drafts", asyncHandler(productController.getAllDraftsForShop));
+productRouter.get(
+  "/drafts",
+  asyncHandler(productController.getAllDraftsForShop),
+);
 productRouter.get(
   "/published",
   asyncHandler(productController.getAllPublishedForShop),

@@ -11,6 +11,8 @@ import {
   publishProductByShop,
   unPublishProductByShop,
   searchProductsByUser,
+  findAllProducts,
+  findProduct,
 } from "../models/repositories/product.repo.js";
 class productService {
   static productRegistry = {};
@@ -36,6 +38,7 @@ class productService {
   //END PUT
 
   // query
+
   static async searchProducts({ keySearch }) {
     return await searchProductsByUser({ keySearch });
   }
@@ -47,6 +50,18 @@ class productService {
   static async findAllPublishedForShop({ shopId, limit = 50, skip = 0 }) {
     const query = { shop: shopId, isPublished: true };
     return await queryProduct({ query, limit, skip });
+  }
+  static async findAllProducts({
+    sort = "ctime",
+    limit = 50,
+    page = 1,
+    filter = { isPublished: true },
+    select = ["name", "price", "thumb"],
+  }) {
+    return findAllProducts({ sort, limit, page, filter, select });
+  }
+  static async findProduct({ productId, unsSelect = ["__v"] }) {
+    return await findProduct({ productId, unsSelect });
   }
 }
 class Product {

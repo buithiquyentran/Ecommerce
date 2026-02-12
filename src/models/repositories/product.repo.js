@@ -6,6 +6,7 @@ import {
   furnitureModel,
 } from "../product.model.js";
 import { badRequestError } from "../../core/error.response.js";
+import { getSelectData, unGetSelectData } from "../../utils/index.js";
 
 async function queryProduct({ query, limit = 50, skip = 0 }) {
   return await productModel
@@ -62,10 +63,31 @@ async function unPublishProductByShop({ shopId, productId }) {
   );
   return modifiedCount;
 }
-
+async function findAllProducts({ sort, limit, page, filter, select }) {
+  const skip = (page - 1) * limit;
+  const sortBy = sort === "ctime" ? { createdAt: -1 } : { updatedAt: -1 };
+  select = getSelectData(select)
+  return await productModel
+    .find(filter)
+    .populate("shop", "name email -_id")
+    .sort(sortBy)
+    .skip(skip)
+    .limit(limit)
+    .select(select)
+    .lean()
+    .exec();
+}
+async function findProduct({ productId, unsSelect = [] }) {
+  const product = await productModel
+    .findById(productId)
+    .select(unGetSelectData(unsSelect))
+  return product;
+}
 export {
   queryProduct,
   publishProductByShop,
   unPublishProductByShop,
   searchProductsByUser,
+  findAllProducts,
+  findProduct,
 };

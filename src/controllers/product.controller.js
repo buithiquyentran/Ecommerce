@@ -62,6 +62,20 @@ class ProductController {
       }),
     }).send(res);
   }
+  async getAllProducts(req, res, next) {
+    new OK({
+      message: "Find all published for shop successfully",
+      metadata: await productService.findAllProducts(req.query),
+    }).send(res);
+  }
+  async getProduct(req, res, next) {
+    new OK({
+      message: "Find all published for shop successfully",
+      metadata: await productService.findProduct({
+        productId: req.params.productId
+      }),
+    }).send(res);
+  }
   //END QUERY
 }
 export const productController = new ProductController();
