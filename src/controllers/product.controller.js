@@ -54,6 +54,14 @@ class ProductController {
       }),
     }).send(res);
   }
+  async getListSearchProduct(req, res, next) {
+    new OK({
+      message: "Find all published for shop successfully",
+      metadata: await productService.searchProducts({
+        keySearch: req.params.keySearch,
+      }),
+    }).send(res);
+  }
   //END QUERY
 }
 export const productController = new ProductController();

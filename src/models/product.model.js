@@ -68,7 +68,8 @@ var productSchema = new Schema(
   },
   { timestamps: true, collection: COLLECTION_NAME },
 );
-
+// Create index for text search on name and description
+productSchema.index({ name: "text", description: "text" });
 //Document middleware - run before save or create
 productSchema.pre("save", function () {
   // Only regenerate slug when name exists and changed/new

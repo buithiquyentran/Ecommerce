@@ -18,6 +18,19 @@ async function queryProduct({ query, limit = 50, skip = 0 }) {
     .exec();
 }
 
+const searchProductsByUser = async ({ keySearch }) => {
+  const regexSearch = new RegExp(keySearch);
+  const results = await productModel
+    .find(
+      { isPublished: true, $text: { $search: regexSearch } },
+      { score: { $meta: "textScore" } },
+    )
+    .sort({ score: { $meta: "textScore" } })
+    .lean()
+    .exec();
+  return results;
+};
+
 async function publishProductByShop({ shopId, productId }) {
   const foundProduct = await productModel.findOne({
     _id: new Types.ObjectId(productId),
@@ -29,7 +42,7 @@ async function publishProductByShop({ shopId, productId }) {
   // Persist publish state using model update (document.update is deprecated)
   const { modifiedCount } = await productModel.updateOne(
     { _id: foundProduct._id },
-    { $set: { isDraft: false, isPublished: true } }
+    { $set: { isDraft: false, isPublished: true } },
   );
   return modifiedCount;
 }
@@ -50,4 +63,9 @@ async function unPublishProductByShop({ shopId, productId }) {
   return modifiedCount;
 }
 
-export { queryProduct, publishProductByShop, unPublishProductByShop };
+export {
+  queryProduct,
+  publishProductByShop,
+  unPublishProductByShop,
+  searchProductsByUser,
+};

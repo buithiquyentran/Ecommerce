@@ -4,6 +4,7 @@ import { productController } from "../../controllers/product.controller.js";
 import { asyncHandler } from "../../helpers/asynHandler.js";
 import { authenticate } from "../../auth/checkAuth.js";
 
+productRouter.get("/search/:keySearch", asyncHandler(productController.getListSearchProduct));
 productRouter.use(authenticate);
 
 productRouter.post("/create", asyncHandler(productController.createProduct));

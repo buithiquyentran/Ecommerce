@@ -10,6 +10,7 @@ import {
   queryProduct,
   publishProductByShop,
   unPublishProductByShop,
+  searchProductsByUser,
 } from "../models/repositories/product.repo.js";
 class productService {
   static productRegistry = {};
@@ -35,6 +36,10 @@ class productService {
   //END PUT
 
   // query
+  static async searchProducts({ keySearch }) {
+    return await searchProductsByUser({ keySearch });
+  }
+
   static async findAllDraftsForShop({ shopId, limit = 50, skip = 0 }) {
     const query = { shop: shopId, isDraft: true };
     return await queryProduct({ query, limit, skip });
