@@ -6,5 +6,5 @@ import { authenticate } from "../../auth/checkAuth.js";
 
 productRouter.use(authenticate);
 productRouter.post("/create", asyncHandler(productController.createProduct));
-
+productRouter.get("/drafts", asyncHandler(productController.getAllDraftsForShop));
 export default productRouter;

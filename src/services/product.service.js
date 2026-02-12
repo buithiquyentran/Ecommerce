@@ -6,6 +6,7 @@ import {
 } from "../models/product.model.js";
 import { badRequestError } from "../core/error.response.js";
 import ProductTypes from "./product.config.js";
+import { findAllDraftsForShop } from "../models/repositories/product.repo.js";
 class productService {
   static productRegistry = {};
   static registerProductType(type, classRef) {
@@ -18,6 +19,11 @@ class productService {
     }
     return new classRef(payload).createProduct();
   }
+  static async findAllDraftsForShop({ shopId, limit = 50, skip = 0 }) {
+    const query = {shop: shopId, isDraft: true}
+    return await findAllDraftsForShop({ query, limit, skip });
+
+  }
 }
 class Product {
   constructor({
@@ -28,6 +34,7 @@ class Product {
     price,
     types,
     attributes,
+    isDraft,
     shop,
   }) {
     this.name = name;
@@ -37,6 +44,7 @@ class Product {
     this.price = price;
     this.types = types;
     this.attributes = attributes;
+    this.isDraft = isDraft;
     this.shop = shop;
   }
   // create new product
