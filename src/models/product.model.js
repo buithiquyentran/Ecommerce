@@ -1,4 +1,6 @@
+"use strict";
 //!dmbg
+import slugify from "slugify";
 import { Schema, Types, model } from "mongoose";
 const COLLECTION_NAME = "Products";
 const DOCUMENT_NAME = "Product";
@@ -32,6 +34,32 @@ var productSchema = new Schema(
       type: Schema.Types.Mixed,
       required: true,
     },
+    slug: {
+      type: String,
+      index: true,
+    },
+    ratingAverage: {
+      type: Number,
+      default: 4.5,
+      min: [1, "Rating must be above 1.0"],
+      max: [5, "Rating must be below 5.0"],
+    },
+    productVariations: {
+      type: Array,
+      default: [],
+    },
+    isDraft: {
+      type: Boolean,
+      default: true,
+      index: true,
+      select: false,
+    },
+    isPublished: {
+      type: Boolean,
+      default: false,
+      index: true,
+      select: false,
+    },
     shop: {
       type: Schema.Types.ObjectId,
       ref: "Shop",
@@ -40,6 +68,15 @@ var productSchema = new Schema(
   },
   { timestamps: true, collection: COLLECTION_NAME },
 );
+
+//Document middleware - run before save or create
+productSchema.pre("save", function () {
+  // Only regenerate slug when name exists and changed/new
+  if (this.name && (this.isNew || this.isModified("name"))) {
+    this.slug = slugify(this.name, { lower: true });
+  }
+});
+
 const clothingSchema = new Schema(
   {
     brand: {

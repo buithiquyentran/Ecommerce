@@ -1,6 +1,6 @@
 const ProductTypes = {
-  ELECTRONICS: "electronics",
-  FURNITURE: "furniture",
-  CLOTHING: "clothing",
+  ELECTRONICS: "Electronics",
+  FURNITURE: "Furniture",
+  CLOTHING: "Clothing",
 };
 export default ProductTypes;
