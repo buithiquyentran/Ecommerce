@@ -1,5 +1,5 @@
 import productService from "../services/product.service.js";
-import { OK} from "../core/success.response.js";
+import { OK } from "../core/success.response.js";
 class ProductController {
   async createProduct(req, res, next) {
     new OK({
@@ -10,6 +10,26 @@ class ProductController {
       }),
     }).send(res);
   }
+  //PUT
+  async publishProductByShop(req, res, next) {
+    new OK({
+      message: "Publish product successfully",
+      metadata: await productService.publishProductByShop({
+        shopId: req.user.user,
+        productId: req.params.id,
+      }),
+    }).send(res);
+  }
+  async unPublishProductByShop(req, res, next) {
+    new OK({
+      message: "Unpublish product successfully",
+      metadata: await productService.unPublishProductByShop({
+        shopId: req.user.user,
+        productId: req.params.id,
+      }),
+    }).send(res);
+  }
+  //END PUT
 
   //QUERY
   /**
@@ -22,6 +42,14 @@ class ProductController {
     new OK({
       message: "Find all drafts for shop successfully",
       metadata: await productService.findAllDraftsForShop({
+        shopId: req.user.user,
+      }),
+    }).send(res);
+  }
+  async getAllPublishedForShop(req, res, next) {
+    new OK({
+      message: "Find all published for shop successfully",
+      metadata: await productService.findAllPublishedForShop({
         shopId: req.user.user,
       }),
     }).send(res);

@@ -5,6 +5,20 @@ import { asyncHandler } from "../../helpers/asynHandler.js";
 import { authenticate } from "../../auth/checkAuth.js";
 
 productRouter.use(authenticate);
+
 productRouter.post("/create", asyncHandler(productController.createProduct));
+productRouter.post("/publish/:id", asyncHandler(productController.publishProductByShop));
+productRouter.post(
+  "/unpublish/:id",
+  asyncHandler(productController.unPublishProductByShop),
+);
+
+
+
 productRouter.get("/drafts", asyncHandler(productController.getAllDraftsForShop));
+productRouter.get(
+  "/published",
+  asyncHandler(productController.getAllPublishedForShop),
+);
+
 export default productRouter;

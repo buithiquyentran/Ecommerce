@@ -6,7 +6,11 @@ import {
 } from "../models/product.model.js";
 import { badRequestError } from "../core/error.response.js";
 import ProductTypes from "./product.config.js";
-import { findAllDraftsForShop } from "../models/repositories/product.repo.js";
+import {
+  queryProduct,
+  publishProductByShop,
+  unPublishProductByShop,
+} from "../models/repositories/product.repo.js";
 class productService {
   static productRegistry = {};
   static registerProductType(type, classRef) {
@@ -19,10 +23,25 @@ class productService {
     }
     return new classRef(payload).createProduct();
   }
-  static async findAllDraftsForShop({ shopId, limit = 50, skip = 0 }) {
-    const query = {shop: shopId, isDraft: true}
-    return await findAllDraftsForShop({ query, limit, skip });
 
+  //PUT
+  static async publishProductByShop({ shopId, productId }) {
+    return await publishProductByShop({ shopId, productId });
+  }
+  static async unPublishProductByShop({ shopId, productId }) {
+    return await unPublishProductByShop({ shopId, productId });
+  }
+
+  //END PUT
+
+  // query
+  static async findAllDraftsForShop({ shopId, limit = 50, skip = 0 }) {
+    const query = { shop: shopId, isDraft: true };
+    return await queryProduct({ query, limit, skip });
+  }
+  static async findAllPublishedForShop({ shopId, limit = 50, skip = 0 }) {
+    const query = { shop: shopId, isPublished: true };
+    return await queryProduct({ query, limit, skip });
   }
 }
 class Product {
@@ -35,6 +54,7 @@ class Product {
     types,
     attributes,
     isDraft,
+    isPublished,
     shop,
   }) {
     this.name = name;
@@ -45,6 +65,7 @@ class Product {
     this.types = types;
     this.attributes = attributes;
     this.isDraft = isDraft;
+    this.isPublished = isPublished;
     this.shop = shop;
   }
   // create new product
