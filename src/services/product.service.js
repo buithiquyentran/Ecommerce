@@ -19,6 +19,7 @@ import {
   removeUndefinedObject,
   updateNestedObjectParser,
 } from "../utils/index.js";
+import { insertInventory } from "../models/repositories/inventory.repo.js";
 class productService {
   static productRegistry = {};
   static registerProductType(type, classRef) {
@@ -32,7 +33,7 @@ class productService {
     return new classRef(payload).createProduct();
   }
   // UPDATE
-  static updateProduct({types, productId, payload}) {
+  static updateProduct({ types, productId, payload }) {
     console.log("types", types, productId, payload);
     const classRef = this.productRegistry[types];
     if (!classRef) {
@@ -103,7 +104,17 @@ class Product {
   }
   // create new product
   async createProduct(productId) {
-    return await productModel.create({ ...this, _id: productId });
+    const newProduct = await productModel.create({ ...this, _id: productId });
+    console.log("newProduct", newProduct);
+    if (newProduct) {
+      // add product to inventory
+      await insertInventory({
+        productId: newProduct._id,
+        shopId: this.shop,
+        stock: this.quantity,
+      });
+    }
+    return newProduct;
   }
   // update product
   async updateProduct(productId, payload) {
@@ -135,7 +146,7 @@ class Clothing extends Product {
 
     //2. Check where to update (product, attributes)
 
-    const objectParams = removeUndefinedObject(this)  ;
+    const objectParams = removeUndefinedObject(this);
 
     if (objectParams.attributes) {
       // update child
