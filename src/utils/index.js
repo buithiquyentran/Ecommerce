@@ -11,5 +11,27 @@ const getSelectData = (select = []) => {
 const unGetSelectData = (select = []) => {
   return Object.fromEntries(select.map((sel) => [sel, 0]));
 };
-
-export { getInforData, getSelectData, unGetSelectData };
+const removeUndefinedObject = (obj = {}) => { 
+  Object.keys(obj).forEach(
+    (key) => obj[key] === undefined || obj[key] === null && delete obj[key]
+  );
+  return obj;
+}
+const updateNestedObjectParser = (obj = {})=>{
+  const result = {}
+   Object.keys(obj).forEach(
+    (key) => {
+      if (typeof obj[key] === 'object' && !Array.isArray(obj[key])){
+        const nestedObj = updateNestedObjectParser(obj[key]);
+        Object.keys(nestedObj).forEach((nestedKey) => {
+          result[`${key}.${nestedKey}`] = nestedObj[nestedKey];
+        });
+      } else {
+        result[key] = obj[key];
+      }
+    }
+  );
+  console.log("updateNestedObjectParser result", result);
+  return result;
+}
+export { getInforData, getSelectData, unGetSelectData, removeUndefinedObject, updateNestedObjectParser };

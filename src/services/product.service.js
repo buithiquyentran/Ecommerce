@@ -13,7 +13,12 @@ import {
   searchProductsByUser,
   findAllProducts,
   findProduct,
+  updateProductById,
 } from "../models/repositories/product.repo.js";
+import {
+  removeUndefinedObject,
+  updateNestedObjectParser,
+} from "../utils/index.js";
 class productService {
   static productRegistry = {};
   static registerProductType(type, classRef) {
@@ -26,7 +31,15 @@ class productService {
     }
     return new classRef(payload).createProduct();
   }
-
+  // UPDATE
+  static updateProduct({types, productId, payload}) {
+    console.log("types", types, productId, payload);
+    const classRef = this.productRegistry[types];
+    if (!classRef) {
+      throw new badRequestError(`Invalid product type: ${types}`);
+    }
+    return new classRef(payload).updateProduct(productId);
+  }
   //PUT
   static async publishProductByShop({ shopId, productId }) {
     return await publishProductByShop({ shopId, productId });
@@ -92,6 +105,10 @@ class Product {
   async createProduct(productId) {
     return await productModel.create({ ...this, _id: productId });
   }
+  // update product
+  async updateProduct(productId, payload) {
+    return await updateProductById({ productId, payload, model: productModel });
+  }
 }
 // define subclass for different products type Clothing
 class Clothing extends Product {
@@ -113,7 +130,32 @@ class Clothing extends Product {
     }
     return newProduct;
   }
+  async updateProduct(productId) {
+    //1. Remove atr has null/undefined
+
+    //2. Check where to update (product, attributes)
+
+    const objectParams = removeUndefinedObject(this)  ;
+
+    if (objectParams.attributes) {
+      // update child
+      const { modifiedCount } = await updateProductById({
+        productId,
+        payload: updateNestedObjectParser(objectParams.attributes),
+        model: clothingModel,
+      });
+      if (modifiedCount === 0) {
+        throw new badRequestError("Failed to update attributes");
+      }
+    }
+    const updatedProduct = await super.updateProduct(
+      productId,
+      updateNestedObjectParser(objectParams),
+    );
+    return updatedProduct;
+  }
 }
+
 class Electronic extends Product {
   async createProduct() {
     const newElectronic = await electronicModel.create({

@@ -83,6 +83,9 @@ async function findProduct({ productId, unsSelect = [] }) {
     .select(unGetSelectData(unsSelect))
   return product;
 }
+async function updateProductById({ productId, payload, model, isNew = true }) {
+  return await model.findByIdAndUpdate(productId, payload, { new: isNew });
+} 
 export {
   queryProduct,
   publishProductByShop,
@@ -90,4 +93,5 @@ export {
   searchProductsByUser,
   findAllProducts,
   findProduct,
+  updateProductById,
 };

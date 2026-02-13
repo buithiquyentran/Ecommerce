@@ -10,6 +10,22 @@ class ProductController {
       }),
     }).send(res);
   }
+
+  //UPDATE
+  async updateProduct(req, res, next) {
+    new OK({
+      message: "Update product successfully",
+      metadata: await productService.updateProduct({
+        types: req.body.types,
+        productId: req.params.productId,
+        payload: {
+          ...req.body,
+          shop: req.user.user,
+        },
+      }),
+    }).send(res);
+  }
+
   //PUT
   async publishProductByShop(req, res, next) {
     new OK({
@@ -20,6 +36,7 @@ class ProductController {
       }),
     }).send(res);
   }
+  
   async unPublishProductByShop(req, res, next) {
     new OK({
       message: "Unpublish product successfully",
