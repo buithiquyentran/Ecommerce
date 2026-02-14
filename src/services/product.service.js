@@ -143,11 +143,8 @@ class Clothing extends Product {
   }
   async updateProduct(productId) {
     //1. Remove atr has null/undefined
-
-    //2. Check where to update (product, attributes)
-
     const objectParams = removeUndefinedObject(this);
-
+    //2. Check where to update (product, attributes)
     if (objectParams.attributes) {
       // update child
       const { modifiedCount } = await updateProductById({

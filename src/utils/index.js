@@ -34,4 +34,33 @@ const updateNestedObjectParser = (obj = {})=>{
   console.log("updateNestedObjectParser result", result);
   return result;
 }
-export { getInforData, getSelectData, unGetSelectData, removeUndefinedObject, updateNestedObjectParser };
+
+const convertToObjectId = (id) => Schema.Types.ObjectId(id);
+
+async function findAllUnselect({ sort, limit, page, filter, unselect, model }) {
+  const skip = (page - 1) * limit;
+  const sortBy = sort === "ctime" ? { createdAt: -1 } : { updatedAt: -1 };
+  unselect = unGetSelectData(unselect);
+  return await model
+    .find(filter)
+    .sort(sortBy)
+    .skip(skip)
+    .limit(limit)
+    .select(unselect)
+    .lean()
+    .exec();
+}
+async function findAllSelect({ sort, limit, page, filter, select, model }) {
+  const skip = (page - 1) * limit;
+  const sortBy = sort === "ctime" ? { createdAt: -1 } : { updatedAt: -1 };
+  select = getSelectData(select);
+  return await model
+    .find(filter)
+    .sort(sortBy)
+    .skip(skip)
+    .limit(limit)
+    .select(select)
+    .lean()
+    .exec();
+}
+export { getInforData, getSelectData, unGetSelectData, removeUndefinedObject, updateNestedObjectParser, convertToObjectId, findAllUnselect, findAllSelect };
