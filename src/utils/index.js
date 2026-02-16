@@ -1,5 +1,5 @@
 import _ from "lodash";
-
+import { Types } from "mongoose";
 const getInforData = ({ fields = [], object = {} }) => {
   return _.pick(object, fields);
 };
@@ -35,7 +35,7 @@ const updateNestedObjectParser = (obj = {})=>{
   return result;
 }
 
-const convertToObjectId = (id) => Schema.Types.ObjectId(id);
+const convertToObjectId = (id) => new Types.ObjectId(id);
 
 async function findAllUnselect({ sort, limit, page, filter, unselect, model }) {
   const skip = (page - 1) * limit;

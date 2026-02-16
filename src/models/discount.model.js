@@ -79,8 +79,8 @@ var DiscountSchema = new Schema(
       required: true,
       enum: ["all", "specific"],
     },
-    discount_produc_ids: {
-      // list of product IDs the discount applies to (if discount_appyTo is "specific")
+    discount_product_ids: {
+      // list of product IDs the discount applies to (if discount_appliedTo is "specific")
       type: [Schema.Types.ObjectId],
       ref: "Product",
       default: [],

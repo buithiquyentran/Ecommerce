@@ -66,7 +66,7 @@ async function unPublishProductByShop({ shopId, productId }) {
 async function findAllProducts({ sort, limit, page, filter, select }) {
   const skip = (page - 1) * limit;
   const sortBy = sort === "ctime" ? { createdAt: -1 } : { updatedAt: -1 };
-  select = getSelectData(select)
+  select = getSelectData(select);
   return await productModel
     .find(filter)
     .populate("shop", "name email -_id")
@@ -77,15 +77,18 @@ async function findAllProducts({ sort, limit, page, filter, select }) {
     .lean()
     .exec();
 }
-async function findProduct({ productId, unsSelect = [] }) {
-  const product = await productModel
-    .findById(productId)
-    .select(unGetSelectData(unsSelect))
+async function findProduct({ productId, select = [], unsSelect = [] }) {
+  if (unsSelect.length > 0) {
+    select = unGetSelectData(unsSelect);
+  } else {
+    select = getSelectData(select);
+  }
+  const product = await productModel.findById(productId).select(select);
   return product;
 }
 async function updateProductById({ productId, payload, model, isNew = true }) {
   return await model.findByIdAndUpdate(productId, payload, { new: isNew });
-} 
+}
 export {
   queryProduct,
   publishProductByShop,

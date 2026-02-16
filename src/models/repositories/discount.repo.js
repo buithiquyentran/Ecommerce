@@ -1,11 +1,10 @@
-import discountModel from "../schemas/discount.schema.js";
-import { convertToObjectId } from "../../utils/index.js";
+import discountModel from "../discount.model.js";
 
 async function discountExist({filter}) {
-  return await discountModel.findOne(filter);
+  return await discountModel.findOne(filter).lean().exec();
 }
 async function discountExistById(discountId) {
-  return await discountModel.findById(discountId);
+  return await discountModel.findById(discountId).lean().exec();
 }
 
 export { discountExist, discountExistById };

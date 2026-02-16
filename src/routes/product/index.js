@@ -9,10 +9,9 @@ productRouter.get(
   "/search/:keySearch",
   asyncHandler(productController.getListSearchProduct),
 );
-productRouter.get("/:productId", asyncHandler(productController.getProduct));
 
 
-productRouter.use(authenticate);
+// productRouter.use(authenticate);
 productRouter.post("/create", asyncHandler(productController.createProduct));
 productRouter.post("/update/:productId", asyncHandler(productController.updateProduct));
 
@@ -34,4 +33,8 @@ productRouter.get(
   asyncHandler(productController.getAllPublishedForShop),
 );
 
+productRouter.get("/:productId", asyncHandler(productController.getProduct));
+
+
 export default productRouter;
+

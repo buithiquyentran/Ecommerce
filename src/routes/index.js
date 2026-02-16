@@ -1,6 +1,7 @@
 import express from "express";
 import  accessRouter  from "./access/index.js";
 import  productRouter  from "./product/index.js";
+import discountRouter  from "./discount/index.js";
 const router = express.Router();
 import {apiKey, permission} from "../auth/checkAuth.js";
 
@@ -17,5 +18,7 @@ router.use(apiKey)
 
 // product router
 router.use("/v1/api/products", productRouter);
+router.use("/v1/api/discounts", discountRouter);
+
 
 export { router };

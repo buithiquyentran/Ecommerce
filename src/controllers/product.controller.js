@@ -81,13 +81,13 @@ class ProductController {
   }
   async getAllProducts(req, res, next) {
     new OK({
-      message: "Find all published for shop successfully",
+      message: "Find all products successfully",
       metadata: await productService.findAllProducts(req.query),
     }).send(res);
   }
   async getProduct(req, res, next) {
     new OK({
-      message: "Find all published for shop successfully",
+      message: "Find product with productId successfully",
       metadata: await productService.findProduct({
         productId: req.params.productId
       }),
