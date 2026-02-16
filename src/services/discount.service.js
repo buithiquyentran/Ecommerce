@@ -210,7 +210,7 @@ class discountService {
     }
     // check min order value
     const totalOrderValue = products.reduce(
-      (total, product) => total + product.price,
+      (total, product) => total + product.price*product.quantity,
       0,
     );
     let discountAmount = 0;
@@ -221,11 +221,11 @@ class discountService {
         const isProductInDiscount = discount_product_ids.find(
           (id) => id.toString() === product._id.toString(),
         );
-        totalPriceHasDiscount+= product.price
+        totalPriceHasDiscount+= product.price*product.quantity
         if (isProductInDiscount){
           discountAmount +=
             discount_type === "percentage"
-              ? (product.price * discount_value) / 100
+              ? (product.price * product.quantity * discount_value) / 100
               : discount_value;
         }
       }
