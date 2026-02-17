@@ -1,3 +1,4 @@
+
 import { Schema, model } from "mongoose";
 const COLLECTION_NAME = "Carts";
 const DOCUMENT_NAME = "cart";
@@ -13,11 +14,12 @@ var cartSchema = new Schema(
       default: [],
     },
     /*
-        productId, name, price, quantity, shopId, size, color
+        _id, name, price, quantity, shopId
      */
     cart_count_product: {
       type: Number,
       default: 0,
+      min: 0,
     },
     cart_userId: {
       type: String,

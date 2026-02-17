@@ -12,7 +12,7 @@ class CartService {
       throw new badRequestError("Invalid Cart id");
     }
     const foundProduct = existingCart.cart_products.find(
-      (product) => product.product_id.toString() === productId,
+      (product) => product._id.toString() === productId,
     );
     if (!foundProduct) {
       throw new badRequestError("Product not found in cart");
@@ -23,7 +23,7 @@ class CartService {
       return updateCart;
     }
     const updateProduct = await CartModel.findOneAndUpdate(
-      { _id: cartId, "cart_products.product_id": productId },
+      { _id: cartId, "cart_products._id": productId },
       { $set: { "cart_products.$.quantity": quantity } },
       { new: true },
     );
@@ -51,14 +51,14 @@ class CartService {
       return await existingCart.save();
     }
     const foundProduct = existingCart.cart_products.find(
-      (p) => p.product_id.toString() === product.product_id.toString(),
+      (p) => p._id === product._id,
     );
 
     // If cart exists and the product is already in the cart, update the quantity
     if (foundProduct) {
       return await this.updateProductQuantity({
         cartId: existingCart._id,
-        productId: product.product_id,
+        productId: product._id,
         quantity: product.quantity,
       });
     } else {
@@ -92,7 +92,7 @@ class CartService {
       throw new badRequestError("Invalid Cart id");
     }
     return await CartModel.findByIdAndUpdate(existingCart._id, {
-      $pull: { cart_products: { product_id: productId } },
+      $pull: { cart_products: { _id: productId } },
       $inc: { cart_count_product: -1 },
     });
   }
@@ -112,7 +112,7 @@ class CartService {
   }
 
   // Get all products in cart
-  static async getCartProducts({cartId, userId}) {
+  static async getCartProducts({ cartId, userId }) {
     const existingCart = await checkExist({
       filter: { _id: cartId, cart_state: "active", cart_userId: userId },
       model: CartModel,
@@ -125,7 +125,7 @@ class CartService {
   // Delete user cart
   static async deleteUserCart(userId) {
     const existingCart = await checkExist({
-      filter: { cart_userId: userId},
+      filter: { cart_userId: userId },
       model: CartModel,
     });
     if (!existingCart) {
