@@ -11,29 +11,27 @@ const getSelectData = (select = []) => {
 const unGetSelectData = (select = []) => {
   return Object.fromEntries(select.map((sel) => [sel, 0]));
 };
-const removeUndefinedObject = (obj = {}) => { 
+const removeUndefinedObject = (obj = {}) => {
   Object.keys(obj).forEach(
-    (key) => obj[key] === undefined || obj[key] === null && delete obj[key]
+    (key) => obj[key] === undefined || (obj[key] === null && delete obj[key]),
   );
   return obj;
-}
-const updateNestedObjectParser = (obj = {})=>{
-  const result = {}
-   Object.keys(obj).forEach(
-    (key) => {
-      if (typeof obj[key] === 'object' && !Array.isArray(obj[key])){
-        const nestedObj = updateNestedObjectParser(obj[key]);
-        Object.keys(nestedObj).forEach((nestedKey) => {
-          result[`${key}.${nestedKey}`] = nestedObj[nestedKey];
-        });
-      } else {
-        result[key] = obj[key];
-      }
+};
+const updateNestedObjectParser = (obj = {}) => {
+  const result = {};
+  Object.keys(obj).forEach((key) => {
+    if (typeof obj[key] === "object" && !Array.isArray(obj[key])) {
+      const nestedObj = updateNestedObjectParser(obj[key]);
+      Object.keys(nestedObj).forEach((nestedKey) => {
+        result[`${key}.${nestedKey}`] = nestedObj[nestedKey];
+      });
+    } else {
+      result[key] = obj[key];
     }
-  );
+  });
   console.log("updateNestedObjectParser result", result);
   return result;
-}
+};
 
 const convertToObjectId = (id) => new Types.ObjectId(id);
 
@@ -63,4 +61,17 @@ async function findAllSelect({ sort, limit, page, filter, select, model }) {
     .lean()
     .exec();
 }
-export { getInforData, getSelectData, unGetSelectData, removeUndefinedObject, updateNestedObjectParser, convertToObjectId, findAllUnselect, findAllSelect };
+async function checkExist({filter, model}) {
+  return await model.findOne(filter).lean().exec();
+}
+export {
+  getInforData,
+  getSelectData,
+  unGetSelectData,
+  removeUndefinedObject,
+  updateNestedObjectParser,
+  convertToObjectId,
+  findAllUnselect,
+  findAllSelect,
+  checkExist
+};
