@@ -17,6 +17,11 @@ class CartService {
     if (!foundProduct) {
       throw new badRequestError("Product not found in cart");
     }
+    if (quantity <= 0) {
+      // If quantity is zero or negative, remove the product from the cart
+      const updateCart = await this.removeFromCart({ cartId, productId });
+      return updateCart;
+    }
     const updateProduct = await CartModel.findOneAndUpdate(
       { _id: cartId, "cart_products.product_id": productId },
       { $set: { "cart_products.$.quantity": quantity } },
@@ -93,9 +98,40 @@ class CartService {
   }
 
   // Clear cart
+  static async clearCart(cartId) {
+    const existingCart = await checkExist({
+      filter: { _id: cartId, cart_state: "active" },
+      model: CartModel,
+    });
+    if (!existingCart) {
+      throw new badRequestError("Invalid Cart id");
+    }
+    return await CartModel.findByIdAndUpdate(existingCart._id, {
+      $set: { cart_products: [], cart_count_product: 0 },
+    });
+  }
 
   // Get all products in cart
-
-  // Delete cart
+  static async getCartProducts({cartId, userId}) {
+    const existingCart = await checkExist({
+      filter: { _id: cartId, cart_state: "active", cart_userId: userId },
+      model: CartModel,
+    });
+    if (!existingCart) {
+      throw new badRequestError("Invalid Cart id");
+    }
+    return existingCart.cart_products;
+  }
+  // Delete user cart
+  static async deleteUserCart(userId) {
+    const existingCart = await checkExist({
+      filter: { cart_userId: userId},
+      model: CartModel,
+    });
+    if (!existingCart) {
+      throw new badRequestError("Invalid Cart id");
+    }
+    return await CartModel.findByIdAndDelete(existingCart._id);
+  }
 }
 export default CartService;
