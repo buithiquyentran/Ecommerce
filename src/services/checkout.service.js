@@ -29,7 +29,7 @@ class checkoutService {
     if (!existingCart) {
       throw new badRequestError("Invalid Cart id");
     }
-    const checkoutOrder = {
+    let checkoutOrder = {
         totalPrice: 0, // total raw price before discount
         feeShip: 0, // fee ship
         totalDiscount: 0, // total discount
@@ -38,9 +38,11 @@ class checkoutService {
       shop_orderIds_new = [];
 
     // Calculate total price
-    shop_orderIds.forEach((shop_order) => {
+    for (const shop_order of shop_orderIds) {
       const { shopId, products = [], shopDiscounts = [] } = shop_order;
-      const checkProductServer = checkProductByServer({ products });
+      console.log("products: ", products);
+      const checkProductServer = await checkProductByServer({ products });
+      console.log("checkProductServer: ", checkProductServer);
       if (!checkProductServer[0]) {
         throw new badRequestError("Wrong order, please check your order again");
       }
@@ -50,7 +52,7 @@ class checkoutService {
       // Total price before discount
       checkoutOrder.totalPrice += checkoutPrice;
       // Calculate total discount
-      const itemCheckout = {
+      let itemCheckout = {
         shopId,
         products,
         priceRaw: checkoutPrice,
@@ -58,30 +60,33 @@ class checkoutService {
         itemProducts: checkProductServer,
       };
       if (shopDiscounts.length > 0) {
-        shopDiscounts.forEach((shopDiscount) => {
-          const { discountId, discountCode } = shopDiscount;
-          const { discount } = discountService.getDiscountAmount({
-            discount_code: discountCode,
-            userId,
-            shopId,
-            products: itemCheckout.itemProducts,
-          });
+        for (const shopDiscount of shopDiscounts) {
+          const { shopId, discountId, discountCode } = shopDiscount;
+          const { totalOrder, discount, totalPrice } =
+            await discountService.getDiscountAmount({
+              discount_code: discountCode,
+              discountId,
+              userId,
+              shopId,
+              products: itemCheckout.itemProducts,
+            });
+          console.log("total discount: ", totalOrder, discount, totalPrice);
           // Apply discount to itemCheckout.priceApplyDiscount
           itemCheckout.priceApplyDiscount -= discount;
-        });
-        // Update checkoutOrder.totalDiscount
-        checkoutOrder.totalDiscount += discount;
+          // Update checkoutOrder.totalDiscount
+          checkoutOrder.totalDiscount += discount;
+        }
       }
       // Calculate fee ship
       // Update checkoutOrder.feeShip
       // Calculate total payment after discount and fee ship
       checkoutOrder.totalPayment += itemCheckout.priceApplyDiscount;
       shop_orderIds_new.push(itemCheckout);
-    });
+    }
     return {
       ...checkoutOrder,
       shop_orderIds,
-      shop_orderIds_new
+      shop_orderIds_new,
     };
   }
 }

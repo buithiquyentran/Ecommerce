@@ -160,11 +160,18 @@ class discountService {
   }
 
   // get discound_amount by code (Apply discount code)
-  static async getDiscountAmount({ discount_code, userId, shopId, products }) {
+  static async getDiscountAmount({
+    discount_code,
+    discountId,
+    userId,
+    shopId,
+    products,
+  }) {
     const foundDiscount = await discountExist({
       filter: {
         discount_code,
         discount_shopId: convertToObjectId(shopId),
+        _id: convertToObjectId(discountId),
       },
     });
     if (!foundDiscount) {
@@ -210,7 +217,7 @@ class discountService {
     }
     // check min order value
     const totalOrderValue = products.reduce(
-      (total, product) => total + product.price*product.quantity,
+      (total, product) => total + product.price * product.quantity,
       0,
     );
     let discountAmount = 0;
@@ -218,18 +225,22 @@ class discountService {
     if (discount_appliedTo == "specific") {
       let totalPriceHasDiscount = 0;
       for (const product of products) {
+        console.log("product in getDiscountAmount", product);
         const isProductInDiscount = discount_product_ids.find(
-          (id) => id.toString() === product._id.toString(),
+          (id) => id.toString() == product._id,
         );
-        totalPriceHasDiscount+= product.price*product.quantity
-        if (isProductInDiscount){
+        if (isProductInDiscount) {
+          totalPriceHasDiscount += product.price * product.quantity;
           discountAmount +=
             discount_type === "percentage"
               ? (product.price * product.quantity * discount_value) / 100
               : discount_value;
         }
       }
-      console.log("totalPriceHasDiscount in getDiscountAmount", totalPriceHasDiscount);
+      console.log(
+        "totalPriceHasDiscount in getDiscountAmount",
+        totalPriceHasDiscount,
+      );
       if (
         discount_min_order_value &&
         totalPriceHasDiscount < discount_min_order_value
@@ -257,7 +268,7 @@ class discountService {
         discountAmount = discount_value;
       }
     }
-    // 
+    //
     return {
       totalOrder: totalOrderValue,
       discount: discountAmount,

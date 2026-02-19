@@ -56,20 +56,23 @@ class CartService {
 
     // If cart exists and the product is already in the cart, update the quantity
     if (foundProduct) {
-      return await this.updateProductQuantity({
-        cartId: existingCart._id,
-        productId: product._id,
-        quantity: product.quantity,
-      });
+      return await CartModel.findByIdAndUpdate(
+        existingCart._id,
+        {
+          $inc: { "cart_products.$[elem].quantity": product.quantity },
+        },
+        {
+          arrayFilters: [{ "elem._id": foundProduct._id }],
+        },
+      );
     } else {
       // If cart exists and the product is not in the cart, add the product to the cart
       return await CartModel.findByIdAndUpdate(
         existingCart._id,
         {
           $push: { cart_products: product },
-          $inc: { cart_count_product: 1 },
-        },
-        { new: true },
+          $inc: { cart_count_product: 1 }
+        }
       );
     }
   }

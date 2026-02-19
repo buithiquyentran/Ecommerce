@@ -6,7 +6,11 @@ import {
   furnitureModel,
 } from "../product.model.js";
 import { badRequestError } from "../../core/error.response.js";
-import { getSelectData, unGetSelectData } from "../../utils/index.js";
+import {
+  getSelectData,
+  unGetSelectData,
+  convertToObjectId,
+} from "../../utils/index.js";
 
 async function queryProduct({ query, limit = 50, skip = 0 }) {
   return await productModel
@@ -90,23 +94,26 @@ async function updateProductById({ productId, payload, model, isNew = true }) {
   return await model.findByIdAndUpdate(productId, payload, { new: isNew });
 }
 async function checkProductByServer({ products }) {
-  return await Promise.all(
-    products.map(async (product) => {
-      const foundProduct = await findProduct({
-        productId: product._id,
-        select: ["price", "name", "_id", "quantity"],
-      });
-      if (foundProduct && foundProduct.quantity >= product.quantity) {
-        return {
-          price: foundProduct.price,
-          name: foundProduct.name,
-          productId: foundProduct._id,
-          quantity: product.quantity,
-        };
-      }
-    }),
-  );
+  const result = products.map(async (product) => {
+    const foundProduct = await findProduct({
+      productId: convertToObjectId(product._id),
+      select: ["price", "name", "_id", "quantity"],
+    });
+    ``;
+    console.log("foundProduct: ", foundProduct);
+    if (foundProduct && foundProduct.quantity >= product.quantity) {
+      return {
+        price: foundProduct.price,
+        name: foundProduct.name,
+        _id: foundProduct._id,
+        quantity: product.quantity,
+      };
+    }
+    return null;
+  });
+  return await Promise.all(result);
 }
+
 export {
   queryProduct,
   publishProductByShop,
