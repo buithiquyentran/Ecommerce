@@ -84,10 +84,35 @@ class checkoutService {
       shop_orderIds_new.push(itemCheckout);
     }
     return {
-      ...checkoutOrder,
+      checkoutOrder,
       shop_orderIds,
       shop_orderIds_new,
     };
   }
+  static async orderByUser({
+    userId,
+    cardId,
+    shop_orderIds = [],
+    user_address = {},
+    userPayment = {},
+  }) {
+    const { checkoutOrder, shop_orderIds_new } = await this.checkout({
+      cartId: cardId,
+      userId,
+      shop_orderIds: shop_orderIds,
+    });
+    // Get new array products 
+    const products = shop_orderIds_new.flatMap((shop_order) => shop_order.itemProducts);
+    console.log("[1]:: products: ", products);
+    for (let i=0;i<products.length;i++) {
+      const {productId, quantity} = products[i];
+    }
+    // Update inventory, etc.
+    return {
+      checkoutOrder,
+      shop_orderIds_new,
+    };
+  }
 }
+
 export default checkoutService;
