@@ -3,6 +3,8 @@ import { checkExist } from "../utils/index.js";
 import { badRequestError } from "../core/error.response.js";
 import { checkProductByServer } from "../models/repositories/product.repo.js";
 import discountService from "./discount.service.js";
+import { acquireLock, releaseLock } from "./redis.service.js";
+import orderModel from "../models/order.model.js";
 class checkoutService {
   /*
     {
@@ -94,23 +96,39 @@ class checkoutService {
     cardId,
     shop_orderIds = [],
     user_address = {},
-    userPayment = {},
+    user_payment = {},
   }) {
     const { checkoutOrder, shop_orderIds_new } = await this.checkout({
       cartId: cardId,
       userId,
       shop_orderIds: shop_orderIds,
     });
-    // Get new array products 
-    const products = shop_orderIds_new.flatMap((shop_order) => shop_order.itemProducts);
+    // Get new array products
+    const products = shop_orderIds_new.flatMap(
+      (shop_order) => shop_order.itemProducts,
+    );
     console.log("[1]:: products: ", products);
-    for (let i=0;i<products.length;i++) {
-      const {productId, quantity} = products[i];
+    const acquireLockResults = [];
+    for (let i = 0; i < products.length; i++) {
+      const { productId, quantity } = products[i];
+      const keyLock = await acquireLock(productId, quantity, cardId);
+      acquireLockResults.push(keyLock);
+      if (keyLock) {
+        await releaseLock(keyLock);
+      }
     }
-    // Update inventory, etc.
+    
+    const newOrder = await orderModel.create({
+      order_userId: userId,
+      order_checkout: checkoutOrder,
+      order_products: shop_orderIds_new,
+      order_payment: user_payment,
+      order_shippingAddress: user_address,
+    });
     return {
       checkoutOrder,
       shop_orderIds_new,
+      newOrder,
     };
   }
 }
