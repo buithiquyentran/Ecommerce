@@ -117,7 +117,7 @@ class checkoutService {
         await releaseLock(keyLock);
       }
     }
-    
+
     const newOrder = await orderModel.create({
       order_userId: userId,
       order_checkout: checkoutOrder,
@@ -125,6 +125,21 @@ class checkoutService {
       order_payment: user_payment,
       order_shippingAddress: user_address,
     });
+
+    // insert success, remove that products in cart
+    if (newOrder) {
+      await CartModel.updateOne(
+        { _id: cardId },
+        {
+          $pull: {
+            cart_porducts: {
+              _id: { $in: products.map((p) => p._id) },
+            },
+          },
+        },
+      );
+    }
+
     return {
       checkoutOrder,
       shop_orderIds_new,
