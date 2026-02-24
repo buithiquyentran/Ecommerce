@@ -3,7 +3,7 @@ import { promisify } from "util";
 
 const redisClient = await createClient({
   //redis[s]://[[username][:password]@][host][:port][/db-number]
-  url: "redis://default:1a5Vl1Quwv5tBdyDEvh0kBNgGasBH6Vp@redis-19483.c295.ap-southeast-1-1.ec2.cloud.redislabs.com:19483",
+  url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
 })
   .on("error", (err) => console.log("Redis Client Error", err))
   .connect();
