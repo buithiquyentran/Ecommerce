@@ -18,11 +18,11 @@ app.use(express.urlencoded({ extended: true }));
 //init db
 import mongoose from "./dbs/init.mongodb.js";
 //test publish subscribe redis
-import inventoryTestService from "./test/inventory.test.js";
-import productTestService from "./test/product.test.js";
-await inventoryTestService.init();
-productTestService.purchaseProduct("product123", 2);
-productTestService.purchaseProduct("product1234", 4);
+// import inventoryTestService from "./test/inventory.test.js";
+// import productTestService from "./test/product.test.js";
+// await inventoryTestService.init();
+// productTestService.purchaseProduct("product123", 2);
+// productTestService.purchaseProduct("product1234", 4);
 
 // init routes
 import { router } from "./routes/index.js";

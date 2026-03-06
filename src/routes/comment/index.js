@@ -1,0 +1,9 @@
+import express from "express";
+const commentRouter = express.Router();
+import commentController  from "../../controllers/comment.controller.js";
+import { asyncHandler } from "../../helpers/asynHandler.js";
+
+
+commentRouter.post("/add-comment", asyncHandler(commentController.createComment));
+
+export default commentRouter;

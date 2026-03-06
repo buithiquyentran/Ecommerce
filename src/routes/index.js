@@ -5,6 +5,7 @@ import discountRouter  from "./discount/index.js";
 import checkoutRouter from "./checkout/index.js";
 import cartRouter from "./cart/index.js";
 import inventoryRouter from "./inventory/index.js";
+import commentRouter from "./comment/index.js";
 const router = express.Router();
 import {apiKey, permission} from "../auth/checkAuth.js";
 
@@ -25,6 +26,8 @@ router.use("/v1/api/discounts", discountRouter);
 router.use("/v1/api/checkout", checkoutRouter);
 router.use("/v1/api/cart", cartRouter);
 router.use("/v1/api/inventory", inventoryRouter);
+router.use("/v1/api/comments", commentRouter);
+
 
 
 export { router };
