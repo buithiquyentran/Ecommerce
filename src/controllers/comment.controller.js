@@ -7,5 +7,11 @@ class commentController {
       metadata: await commentService.createComment(req.body),
     }).send(res);
   }
+  async getCommentsByParentId(req, res, next) {
+    new OK({
+      message: "Get comments successfully",
+      metadata: await commentService.getCommentsByParentId(req.query),
+    }).send(res);
+  }
 }
 export default new commentController();

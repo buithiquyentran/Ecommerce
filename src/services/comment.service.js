@@ -27,7 +27,7 @@ class CommentService {
 
       await commentModel.updateMany(
         { comment_productId: productId, comment_right: { $gte: parentRight } },
-        { $inc: { comment_right: 2 } }
+        { $inc: { comment_right: 2 } },
       );
       await commentModel.updateMany(
         {
@@ -38,7 +38,6 @@ class CommentService {
       );
       await comment.save();
       return comment;
-
     } else {
       // find the maxRight
       const maxRight = await commentModel
@@ -51,6 +50,58 @@ class CommentService {
       await comment.save();
       return comment;
     }
+  }
+  static async getCommentsByParentId({
+    parentId = null,
+    productId,
+    page = 1,
+    limit = 10,
+  }) {
+    if (parentId === null) {
+      // Get top-level comments
+      const skip = (page - 1) * limit;
+      const comments = await commentModel
+        .find({
+          comment_productId: productId,
+          comment_parentId: null,
+          comment_isDeleted: false,
+        })
+        .select({
+          comment_left: 1,
+          comment_right: 1,
+          comment_content: 1,
+          comment_parentId: 1,
+          comment_userId: 1,
+        })
+        .sort("comment_left")
+        .skip(skip)
+        .limit(limit);
+      return comments;
+    }
+    const parentComment = await commentModel.findById(parentId);
+    if (!parentComment) {
+      throw new Error("Parent comment not found");
+    }
+    const skip = (page - 1) * limit;
+    const comments = await commentModel
+      .find({
+        comment_productId: productId,
+        comment_parentId: parentId,
+        comment_left: { $gt: parentComment.comment_left },
+        comment_right: { $lt: parentComment.comment_right },
+        comment_isDeleted: false,
+      })
+      .select({
+        comment_left: 1,
+        comment_right: 1,
+        comment_content: 1,
+        comment_parentId: 1,
+        comment_userId: 1,
+      })
+      .sort("comment_left")
+      .skip(skip)
+      .limit(limit);
+    return comments;
   }
 }
 export default CommentService;
