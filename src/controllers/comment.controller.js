@@ -7,6 +7,15 @@ class commentController {
       metadata: await commentService.createComment(req.body),
     }).send(res);
   }
+  async deleteComment(req, res, next) {
+    new OK({
+      message: "Delete comment successfully",
+      metadata: await commentService.deleteComment({
+        ...req.body,
+        commentId: req.params.commentId,
+      }),
+    }).send(res);
+  }
   async getCommentsByParentId(req, res, next) {
     new OK({
       message: "Get comments successfully",

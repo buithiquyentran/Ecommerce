@@ -1,4 +1,5 @@
 import commentModel from "../models/comment.model.js";
+import { findProduct } from "../models/repositories/product.repo.js";
 /*  
     key features:
     - add comment [user, shop]
@@ -50,6 +51,39 @@ class CommentService {
       await comment.save();
       return comment;
     }
+  }
+  static async deleteComment({ commentId, productId, userId }) {
+    const foundProduct = await findProduct({productId});
+    if (!foundProduct) {
+      throw new Error("Product not found");
+    }
+    const comment = await commentModel.findById(commentId);
+    if (!comment) {
+      throw new Error("Comment not found");
+    }
+    if (comment.comment_userId.toString() !== userId.toString()) {
+      throw new Error("You are not authorized to delete this comment");
+    }
+    
+    const leftValue = comment.comment_left;
+    const rightValue = comment.comment_right;
+    const width = rightValue - leftValue + 1;
+    // delete comment and its children
+    await commentModel.deleteMany({
+      comment_productId: productId,
+      comment_left: { $gte: leftValue },
+      comment_right: { $lte: rightValue },
+    });
+    // update left and right value of remaining comments
+    await commentModel.updateMany(
+      { comment_productId: productId, comment_left: { $gt: rightValue } },
+      { $inc: { comment_left: -width } },
+    );  
+    await commentModel.updateMany(
+      { comment_productId: productId, comment_right: { $gt: rightValue } },
+      { $inc: { comment_right: -width } },
+    );
+    return true;
   }
   static async getCommentsByParentId({
     parentId = null,
