@@ -20,6 +20,7 @@ import {
   updateNestedObjectParser,
 } from "../utils/index.js";
 import { insertInventory } from "../models/repositories/inventory.repo.js";
+import notificationService from "./notification.service.js";
 class productService {
   static productRegistry = {};
   static registerProductType(type, classRef) {
@@ -114,6 +115,13 @@ class Product {
         stock: this.quantity,
       });
     }
+    // push noti to system collection
+    await notificationService.pushNotiToSystem({
+      type: "SHOP-001",
+      senderId: this.shop,
+      productId: newProduct._id,
+      options: { productName: this.name, shopId: this.shop },
+    });
     return newProduct;
   }
   // update product

@@ -11,7 +11,7 @@ productRouter.get(
 );
 
 
-// productRouter.use(authenticate);
+productRouter.use(authenticate);
 productRouter.post("/create", asyncHandler(productController.createProduct));
 productRouter.post("/update/:productId", asyncHandler(productController.updateProduct));
 
